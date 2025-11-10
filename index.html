@@ -239,56 +239,78 @@
                 <div className="min-h-screen bg-white">
                     {/* 헤더 */}
                     <header className="bg-white border-b sticky top-0 z-10">
-                        <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                {/* 로드브로크 로고 */}
-                                <img 
-                                    src="./logo.jpg" 
-                                    alt="로드브로크 로고" 
-                                    className="h-12 w-auto"
-                                    onError={(e) => {
-                                        e.target.style.display = 'none';
-                                        e.target.nextSibling.style.display = 'block';
-                                    }}
-                                />
-                                <div style={{ display: 'none', padding: '8px 16px', background: '#000', color: '#fff', borderRadius: '4px' }}>
-                                    ROADBROOK
-                                </div>
-                                {isEditMode ? (
-                                    <input
-                                        type="text"
-                                        value={editingCafeName}
-                                        onChange={(e) => setEditingCafeName(e.target.value)}
-                                        className="text-2xl font-bold text-gray-800 border-b-2 border-gray-800 focus:outline-none ml-4"
-                                    />
-                                ) : (
-                                    <h1 className="text-2xl font-bold text-gray-800 ml-4">{cafeName}</h1>
-                                )}
-                            </div>
-                            
+                        <div className="max-w-4xl mx-auto px-4 py-4">
                             {!isEditMode ? (
-                                <button
-                                    onClick={() => setShowPasswordModal(true)}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                                >
-                                    <Settings className="w-6 h-6 text-gray-600" />
-                                </button>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-4">
+                                        {/* 로드브로크 로고 */}
+                                        <img 
+                                            src="./logo.jpg" 
+                                            alt="로드브로크 로고" 
+                                            className="h-12 w-auto"
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'block';
+                                            }}
+                                        />
+                                        <div style={{ display: 'none', padding: '8px 16px', background: '#000', color: '#fff', borderRadius: '4px' }}>
+                                            ROADBROOK
+                                        </div>
+                                        <h1 className="text-2xl font-bold text-gray-800">{cafeName}</h1>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowPasswordModal(true)}
+                                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                    >
+                                        <Settings className="w-6 h-6 text-gray-600" />
+                                    </button>
+                                </div>
                             ) : (
-                                <div className="flex space-x-2">
-                                    <button
-                                        onClick={handleSaveChanges}
-                                        className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2"
-                                    >
-                                        <Save className="w-4 h-4" />
-                                        <span>저장</span>
-                                    </button>
-                                    <button
-                                        onClick={handleCancelEdit}
-                                        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center space-x-2"
-                                    >
-                                        <X className="w-4 h-4" />
-                                        <span>취소</span>
-                                    </button>
+                                <div>
+                                    <div className="flex items-center space-x-4 mb-3">
+                                        {/* 로드브로크 로고 */}
+                                        <img 
+                                            src="./logo.jpg" 
+                                            alt="로드브로크 로고" 
+                                            className="h-12 w-auto"
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'block';
+                                            }}
+                                        />
+                                        <div style={{ display: 'none', padding: '8px 16px', background: '#000', color: '#fff', borderRadius: '4px' }}>
+                                            ROADBROOK
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={editingCafeName}
+                                            onChange={(e) => setEditingCafeName(e.target.value)}
+                                            className="text-2xl font-bold text-gray-800 border-b-2 border-gray-800 focus:outline-none flex-1"
+                                        />
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={handleAddItem}
+                                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                            <span>메뉴 추가</span>
+                                        </button>
+                                        <button
+                                            onClick={handleSaveChanges}
+                                            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2"
+                                        >
+                                            <Save className="w-4 h-4" />
+                                            <span>저장</span>
+                                        </button>
+                                        <button
+                                            onClick={handleCancelEdit}
+                                            className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center space-x-2"
+                                        >
+                                            <X className="w-4 h-4" />
+                                            <span>취소</span>
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
