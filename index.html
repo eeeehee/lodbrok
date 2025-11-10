@@ -1,466 +1,469 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>로드브로크 메뉴 · 키오스크</title>
-
-    <!-- React / Babel / Tailwind -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로드브로크 메뉴</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Firebase compat (원본과 동일 버전/방식 유지) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
     <style>
-      body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell','Fira Sans','Droid Sans','Helvetica Neue',sans-serif;}
-      .btn{ transition:transform .04s ease; }
-      .btn:active{ transform:scale(.98); }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; }
     </style>
 </head>
 <body>
-  <div id="root"></div>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        // Firebase 초기화
+        const firebaseConfig = {
+            apiKey: "AIzaSyChH4HYi5K_5ZBWKNpbPixj0sqMTs0bZgI",
+            authDomain: "lodbrock-2a922.firebaseapp.com",
+            projectId: "lodbrock-2a922",
+            storageBucket: "lodbrock-2a922.firebasestorage.app",
+            messagingSenderId: "683670960151",
+            appId: "1:683670960151:web:689235912084baf04a8452"
+        };
 
-  <script type="text/babel">
-    // ---------- Firebase ----------
-    const firebaseConfig = {
-      apiKey: "AIzaSyChH4HYi5K_5ZBWKNpbPixj0sqMTs0bZgI",
-      authDomain: "lodbrock-2a922.firebaseapp.com",
-      projectId: "lodbrock-2a922",
-      storageBucket: "lodbrock-2a922.firebasestorage.app",
-      messagingSenderId: "683670960151",
-      appId: "1:683670960151:web:689235912084baf04a8452"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+        // Firebase 초기화
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    const { useState, useEffect, useMemo } = React;
-
-    // ---------- Icons ----------
-    const Settings = ({ className }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-        <circle cx="12" cy="12" r="3"/>
-      </svg>
-    );
-    const Volume2 = ({ className }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-      </svg>
-    );
-    const Save = ({ className }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-        <polyline points="17 21 17 13 7 13 7 21"/>
-        <polyline points="7 3 7 8 15 8"/>
-      </svg>
-    );
-    const X = ({ className }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    );
-    const Plus = ({ className }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-    );
-    const Trash2 = ({ className }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <polyline points="3 6 5 6 21 6"/>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        <line x1="10" y1="11" x2="10" y2="17"/>
-        <line x1="14" y1="11" x2="14" y2="17"/>
-      </svg>
-    );
-
-    // ---------- Utils ----------
-    const parsePriceToNumber = (priceStr) => {
-      // "6,000원" -> 6000
-      if (!priceStr) return 0;
-      return Number(String(priceStr).replace(/[^\d]/g, "")) || 0;
-    };
-    const formatKRW = (n) => n.toLocaleString("ko-KR");
-
-    // ---------- App ----------
-    function RoadbrookMenu(){
-      const [isEditMode, setIsEditMode] = useState(false);
-      const [showPasswordModal, setShowPasswordModal] = useState(false);
-      const [password, setPassword] = useState("");
-      const [cafeName, setCafeName] = useState("로드브로크");
-      const [editingCafeName, setEditingCafeName] = useState("");
-
-      // 메뉴 데이터 (초기 로컬 + Firestore 실시간 반영)
-      const [menuItems, setMenuItems] = useState([
-        { id: 1, category: 'COFFEE', name: 'HOT A(에스프레소)', price: '6,000원', description: '깊고 진한 싱글 오리진 에스프레소' },
-        { id: 2, category: 'COFFEE', name: 'ICE A(에스프레소)', price: '6,000원', description: '시원한 싱글 오리진 아이스 에스프레소' },
-        { id: 3, category: 'COFFEE', name: 'HOT A(프루티 봉봉)', price: '6,000원', description: '과일향이 풍부한 에스프레소' },
-        { id: 4, category: 'COFFEE', name: 'ICE A(프루티 봉봉)', price: '6,000원', description: '상큼한 과일향의 아이스 에스프레소' },
-        { id: 5, category: 'COFFEE', name: 'HOT L(에스프레소)', price: '6,000원', description: '부드러운 우유와 에스프레소의 조화' },
-        { id: 6, category: 'COFFEE', name: 'ICE L(에스프레소)', price: '6,000원', description: '시원한 아이스 카페 라떼' },
-        { id: 7, category: 'COFFEE', name: 'HOT L(프루티 봉봉)', price: '6,000원', description: '과일향 에스프레소와 우유의 조화' },
-        { id: 8, category: 'COFFEE', name: 'ICE L(프루티 봉봉)', price: '6,000원', description: '상큼한 과일향 아이스 라떼' },
-        { id: 9, category: 'COFFEE', name: 'HOT F(에스프레소)', price: '6,000원', description: '진한 에스프레소와 폼밀크의 조화' },
-        { id:10, category: 'COFFEE', name: 'ICE F(에스프레소)', price: '6,000원', description: '시원한 플랫화이트' },
-        { id:11, category: 'COFFEE', name: 'HOT F(프루티 봉봉)', price: '6,000원', description: '과일향 플랫화이트' },
-        { id:12, category: 'COFFEE', name: 'ICE F(프루티 봉봉)', price: '6,000원', description: '상큼한 아이스 플랫화이트' },
-        { id:13, category: 'COFFEE', name: 'HOT VL', price: '6,500원', description: '달콤한 바닐라 라떼' },
-        { id:14, category: 'COFFEE', name: 'ICE VL', price: '6,500원', description: '시원한 바닐라 라떼' },
-        { id:15, category: 'FILTER COFFEE', name: 'H Batch Brew', price: '6,000원', description: '따뜻한 배치 브루 커피' },
-        { id:16, category: 'FILTER COFFEE', name: 'I Batch Brew', price: '6,000원', description: '시원한 배치 브루 커피' },
-        { id:17, category: 'FILTER COFFEE', name: 'H decaf coffee', price: '7,000원', description: '카페인 없는 따뜻한 커피' },
-        { id:18, category: 'FILTER COFFEE', name: 'I decaf coffee', price: '7,000원', description: '카페인 없는 시원한 커피' },
-        { id:19, category: 'NON COFFEE', name: 'HOT TEA', price: '6,000원', description: '따뜻한 차' },
-        { id:20, category: 'NON COFFEE', name: 'ICE TEA', price: '6,000원', description: '시원한 아이스티' },
-        { id:21, category: 'MD', name: '드립백', price: '11,000원', description: '집에서 즐기는 로드브로크 커피' }
-      ]);
-
-      const [editingItems, setEditingItems] = useState([]);
-      const ADMIN_PASSWORD = "1234";
-
-      // ---------- NEW: 장바구니 ----------
-      const [cart, setCart] = useState([]);
-      const cartTotal = useMemo(
-        () => cart.reduce((s, it) => s + parsePriceToNumber(it.price) * it.qty, 0),
-        [cart]
-      );
-      const addToCart = (item) => {
-        setCart(prev => {
-          const exists = prev.find(p => p.id === item.id);
-          if (exists){
-            return prev.map(p => p.id === item.id ? { ...p, qty: p.qty+1 } : p);
-          }
-          return [...prev, { ...item, qty:1 }];
-        });
-      };
-      const changeQty = (id, diff) => {
-        setCart(prev => prev
-          .map(p => p.id === id ? { ...p, qty: p.qty + diff } : p)
-          .filter(p => p.qty > 0)
+        const { useState, useEffect } = React;
+        
+        // Lucide Icons as SVG components
+        const Settings = ({ className }) => (
+            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
         );
-      };
-      const removeLine = (id) => setCart(prev => prev.filter(p => p.id !== id));
-      const clearCart = () => setCart([]);
+        
+        const Volume2 = ({ className }) => (
+            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+        );
+        
+        const Save = ({ className }) => (
+            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+        );
+        
+        const X = ({ className }) => (
+            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        );
+        
+        const Plus = ({ className }) => (
+            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        );
+        
+        const Trash2 = ({ className }) => (
+            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+        );
 
-      // Firestore: 메뉴 실시간 구독
-      useEffect(()=>{
-        const unsub = db.collection("menuData").doc("roadbrook")
-          .onSnapshot(doc=>{
-            if (!doc.exists) return;
-            const data = doc.data();
-            if (data.menuItems) setMenuItems(data.menuItems);
-            if (data.cafeName) setCafeName(data.cafeName);
-          }, err => console.error("데이터 로드 오류:", err));
-        return () => unsub && unsub();
-      }, []);
+        function RoadbrookMenu() {
+            const [isEditMode, setIsEditMode] = useState(false);
+            const [showPasswordModal, setShowPasswordModal] = useState(false);
+            const [password, setPassword] = useState('');
+            const [cafeName, setCafeName] = useState('로드브로크');
+            const [editingCafeName, setEditingCafeName] = useState('');
+            
+            const [menuItems, setMenuItems] = useState([
+                // COFFEE
+                { id: 1, category: 'COFFEE', name: 'HOT A(에스프레소)', price: '6,000원', description: '깊고 진한 싱글 오리진 에스프레소' },
+                { id: 2, category: 'COFFEE', name: 'ICE A(에스프레소)', price: '6,000원', description: '시원한 싱글 오리진 아이스 에스프레소' },
+                { id: 3, category: 'COFFEE', name: 'HOT A(프루티 봉봉)', price: '6,000원', description: '과일향이 풍부한 에스프레소' },
+                { id: 4, category: 'COFFEE', name: 'ICE A(프루티 봉봉)', price: '6,000원', description: '상큼한 과일향의 아이스 에스프레소' },
+                { id: 5, category: 'COFFEE', name: 'HOT L(에스프레소)', price: '6,000원', description: '부드러운 우유와 에스프레소의 조화' },
+                { id: 6, category: 'COFFEE', name: 'ICE L(에스프레소)', price: '6,000원', description: '시원한 아이스 카페 라떼' },
+                { id: 7, category: 'COFFEE', name: 'HOT L(프루티 봉봉)', price: '6,000원', description: '과일향 에스프레소와 우유의 조화' },
+                { id: 8, category: 'COFFEE', name: 'ICE L(프루티 봉봉)', price: '6,000원', description: '상큼한 과일향 아이스 라떼' },
+                { id: 9, category: 'COFFEE', name: 'HOT F(에스프레소)', price: '6,000원', description: '진한 에스프레소와 폼밀크의 조화' },
+                { id: 10, category: 'COFFEE', name: 'ICE F(에스프레소)', price: '6,000원', description: '시원한 플랫화이트' },
+                { id: 11, category: 'COFFEE', name: 'HOT F(프루티 봉봉)', price: '6,000원', description: '과일향 플랫화이트' },
+                { id: 12, category: 'COFFEE', name: 'ICE F(프루티 봉봉)', price: '6,000원', description: '상큼한 아이스 플랫화이트' },
+                { id: 13, category: 'COFFEE', name: 'HOT VL', price: '6,500원', description: '달콤한 바닐라 라떼' },
+                { id: 14, category: 'COFFEE', name: 'ICE VL', price: '6,500원', description: '시원한 바닐라 라떼' },
+                
+                // FILTER COFFEE
+                { id: 15, category: 'FILTER COFFEE', name: 'H Batch Brew', price: '6,000원', description: '따뜻한 배치 브루 커피' },
+                { id: 16, category: 'FILTER COFFEE', name: 'I Batch Brew', price: '6,000원', description: '시원한 배치 브루 커피' },
+                { id: 17, category: 'FILTER COFFEE', name: 'H decaf coffee', price: '7,000원', description: '카페인 없는 따뜻한 커피' },
+                { id: 18, category: 'FILTER COFFEE', name: 'I decaf coffee', price: '7,000원', description: '카페인 없는 시원한 커피' },
+                
+                // NON COFFEE
+                { id: 19, category: 'NON COFFEE', name: 'HOT TEA', price: '6,000원', description: '따뜻한 차' },
+                { id: 20, category: 'NON COFFEE', name: 'ICE TEA', price: '6,000원', description: '시원한 아이스티' },
+                
+                // MD
+                { id: 21, category: 'MD', name: '드립백', price: '11,000원', description: '집에서 즐기는 로드브로크 커피' }
+            ]);
 
-      // Firestore 저장 (메뉴/카페명)
-      const saveToFirebase = (items, name) => {
-        db.collection("menuData").doc("roadbrook").set({
-          menuItems: items,
-          cafeName: name,
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(()=> alert("메뉴가 저장되었습니다! ✅"))
-          .catch(e=>{
-            alert("저장 실패: " + e.message);
-            console.error(e);
-          });
-      };
+            const [editingItems, setEditingItems] = useState([]);
 
-      // 편집 모드 인증
-      const handlePasswordSubmit = () => {
-        if (password === ADMIN_PASSWORD){
-          setIsEditMode(true);
-          setShowPasswordModal(false);
-          setPassword("");
-          setEditingItems(JSON.parse(JSON.stringify(menuItems)));
-          setEditingCafeName(cafeName);
-        } else {
-          alert("비밀번호가 올바르지 않습니다.");
-          setPassword("");
-        }
-      };
+            const ADMIN_PASSWORD = '1234';
 
-      // 편집 저장/취소
-      const handleSaveChanges = () => {
-        setMenuItems(editingItems);
-        setCafeName(editingCafeName);
-        saveToFirebase(editingItems, editingCafeName);
-        setIsEditMode(false);
-      };
-      const handleCancelEdit = () => {
-        setIsEditMode(false);
-        setEditingItems([]);
-        setEditingCafeName("");
-      };
+            // Firestore에서 데이터 불러오기
+            useEffect(() => {
+                const unsubscribe = db.collection('menuData').doc('roadbrook')
+                    .onSnapshot((doc) => {
+                        if (doc.exists) {
+                            const data = doc.data();
+                            if (data.menuItems) {
+                                setMenuItems(data.menuItems);
+                            }
+                            if (data.cafeName) {
+                                setCafeName(data.cafeName);
+                            }
+                        }
+                    }, (error) => {
+                        console.error("데이터 로드 오류:", error);
+                    });
 
-      const handleAddItem = (category) => {
-        const newItem = {
-          id: Date.now(),
-          category,
-          name: "새 메뉴",
-          price: "0원",
-          description: "메뉴 설명을 입력하세요."
-        };
-        setEditingItems([...editingItems, newItem]);
-      };
-      const handleDeleteItem = (id) => setEditingItems(editingItems.filter(i=>i.id!==id));
-      const handleEditItem = (id, field, value) => {
-        if (field === "price"){
-          const numbers = value.replace(/[^\d]/g,"");
-          const formatted = numbers.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          value = formatted ? formatted + "원" : "";
-        }
-        setEditingItems(editingItems.map(i => i.id===id ? { ...i, [field]: value } : i));
-      };
+                // 컴포넌트 언마운트 시 리스너 제거
+                return () => unsubscribe();
+            }, []);
 
-      const speakText = (text) => {
-        if (!("speechSynthesis" in window)){
-          alert("이 브라우저는 음성 읽기를 지원하지 않습니다.");
-          return;
-        }
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = "ko-KR";
-        u.rate = 0.9;
-        u.pitch = 1;
-        window.speechSynthesis.speak(u);
-      };
+            // Firestore에 데이터 저장
+            const saveToFirebase = (items, name) => {
+                db.collection('menuData').doc('roadbrook').set({
+                    menuItems: items,
+                    cafeName: name,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    alert('메뉴가 저장되었습니다! ✅');
+                }).catch((error) => {
+                    alert('저장 실패: ' + error.message);
+                    console.error("저장 오류:", error);
+                });
+            };
 
-      // 화면 표시용 데이터 그룹핑
-      const currentItems = isEditMode ? editingItems : menuItems;
-      const grouped = currentItems.reduce((acc, it)=>{
-        (acc[it.category] = acc[it.category] || []).push(it);
-        return acc;
-      }, {});
-      const categoryOrder = ["COFFEE","FILTER COFFEE","NON COFFEE","MD"];
-      const sortedCategories = categoryOrder.filter(c => grouped[c]);
+            const handlePasswordSubmit = () => {
+                if (password === ADMIN_PASSWORD) {
+                    setIsEditMode(true);
+                    setShowPasswordModal(false);
+                    setPassword('');
+                    setEditingItems(JSON.parse(JSON.stringify(menuItems)));
+                    setEditingCafeName(cafeName);
+                } else {
+                    alert('비밀번호가 올바르지 않습니다.');
+                    setPassword('');
+                }
+            };
 
-      // ---------- NEW: 주문 처리 ----------
-      const placeOrder = async() => {
-        if (cart.length === 0){
-          alert("장바구니가 비어 있습니다.");
-          return;
-        }
-        const order = {
-          items: cart.map(c => ({
-            id: c.id,
-            name: c.name,
-            price: parsePriceToNumber(c.price),
-            qty: c.qty,
-            category: c.category
-          })),
-          total: cartTotal,
-          status: "결제대기", // 후속 단계에서 결제 연동 시 '결제완료'로 업데이트
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        try{
-          const docRef = await db.collection("orders").add(order);
-          clearCart();
-          alert(`주문이 접수되었습니다! (주문번호: ${docRef.id})`);
-          // 필요 시 orders.html 등으로 이동 가능
-          // location.href = `orders.html?id=${docRef.id}&total=${order.total}`;
-        }catch(e){
-          console.error(e);
-          alert("주문 저장 중 오류가 발생했습니다.");
-        }
-      };
+            const handleSaveChanges = () => {
+                setMenuItems(editingItems);
+                setCafeName(editingCafeName);
+                saveToFirebase(editingItems, editingCafeName);
+                setIsEditMode(false);
+            };
 
-      return (
-        <div className="min-h-screen bg-white">
-          {/* 헤더 */}
-          <header className="bg-white border-b sticky top-0 z-10">
-            <div className="max-w-4xl mx-auto px-4 py-4">
-              {!isEditMode ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <img
-                      src="./logo.jpg"
-                      alt="로드브로크 로고"
-                      className="h-12 w-auto"
-                      onError={(e)=>{ e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
-                    />
-                    <div style={{display:'none',padding:'8px 16px',background:'#000',color:'#fff',borderRadius:'4px'}}>ROADBROOK</div>
-                    <h1 className="text-2xl font-bold text-gray-800">{cafeName}</h1>
-                  </div>
-                  <button onClick={()=>setShowPasswordModal(true)} className="p-2 hover:bg-gray-100 rounded-full">
-                    <Settings className="w-6 h-6 text-gray-600" />
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex items-center space-x-4 mb-3">
-                    <img
-                      src="./logo.jpg"
-                      alt="로드브로크 로고"
-                      className="h-12 w-auto"
-                      onError={(e)=>{ e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
-                    />
-                    <div style={{display:'none',padding:'8px 16px',background:'#000',color:'#fff',borderRadius:'4px'}}>ROADBROOK</div>
-                    <input
-                      type="text"
-                      value={editingCafeName}
-                      onChange={(e)=>setEditingCafeName(e.target.value)}
-                      className="text-2xl font-bold text-gray-800 border-b-2 border-gray-800 focus:outline-none flex-1"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={()=>handleAddItem('COFFEE')} className="btn px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
-                      <Plus className="w-4 h-4"/><span>메뉴 추가</span>
-                    </button>
-                    <button onClick={handleSaveChanges} className="btn px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 flex items-center gap-2">
-                      <Save className="w-4 h-4"/><span>저장</span>
-                    </button>
-                    <button onClick={handleCancelEdit} className="btn px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 flex items-center gap-2">
-                      <X className="w-4 h-4"/><span>취소</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </header>
+            const handleCancelEdit = () => {
+                setIsEditMode(false);
+                setEditingItems([]);
+                setEditingCafeName('');
+            };
 
-          {/* 메뉴 목록 */}
-          <main className="max-w-4xl mx-auto px-4 py-8">
-            {sortedCategories.map((category)=>(
-              <div key={category} className="mb-10">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-900">
-                  {category} {grouped[category].length}
-                </h2>
+            const handleAddItem = (category) => {
+                const newItem = {
+                    id: Date.now(),
+                    category: category,
+                    name: '새 메뉴',
+                    price: '0원',
+                    description: '메뉴 설명을 입력하세요.'
+                };
+                setEditingItems([...editingItems, newItem]);
+            };
 
-                <div className="space-y-3">
-                  {grouped[category].map(item=>(
-                    <div key={item.id} className="bg-white border-b border-gray-200 pb-4 hover:bg-gray-50">
-                      {isEditMode ? (
-                        <div className="space-y-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 space-y-2">
-                              <div className="flex gap-2">
-                                <input value={item.category} onChange={e=>handleEditItem(item.id,'category',e.target.value)} className="px-2 py-1 border rounded w-40 text-sm" placeholder="카테고리"/>
-                                <input value={item.name} onChange={e=>handleEditItem(item.id,'name',e.target.value)} className="px-2 py-1 border rounded flex-1 font-semibold" placeholder="메뉴명"/>
-                                <input value={item.price} onChange={e=>handleEditItem(item.id,'price',e.target.value)} className="px-2 py-1 border rounded w-28" placeholder="가격"/>
-                              </div>
-                              <textarea value={item.description} onChange={e=>handleEditItem(item.id,'description',e.target.value)} rows="2" className="w-full px-2 py-1 border rounded text-sm" placeholder="메뉴 설명"/>
-                            </div>
-                            <button onClick={()=>handleDeleteItem(item.id)} className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded">
-                              <Trash2 className="w-5 h-5"/>
-                            </button>
-                          </div>
+            const handleDeleteItem = (id) => {
+                setEditingItems(editingItems.filter(item => item.id !== id));
+            };
+
+            const handleEditItem = (id, field, value) => {
+                // 가격 필드일 경우 천 단위 콤마 자동 추가
+                if (field === 'price') {
+                    // 숫자만 추출
+                    const numbers = value.replace(/[^\d]/g, '');
+                    // 천 단위 콤마 추가
+                    const formatted = numbers.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    // '원' 자동 추가
+                    value = formatted ? formatted + '원' : '';
+                }
+                
+                setEditingItems(editingItems.map(item => 
+                    item.id === id ? { ...item, [field]: value } : item
+                ));
+            };
+
+            const speakText = (text) => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'ko-KR';
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1;
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    alert('이 브라우저는 음성 읽기 기능을 지원하지 않습니다.');
+                }
+            };
+
+            const groupedMenus = isEditMode 
+                ? editingItems.reduce((acc, item) => {
+                    if (!acc[item.category]) acc[item.category] = [];
+                    acc[item.category].push(item);
+                    return acc;
+                }, {})
+                : menuItems.reduce((acc, item) => {
+                    if (!acc[item.category]) acc[item.category] = [];
+                    acc[item.category].push(item);
+                    return acc;
+                }, {});
+
+            const categoryOrder = ['COFFEE', 'FILTER COFFEE', 'NON COFFEE', 'MD'];
+            const sortedCategories = categoryOrder.filter(cat => groupedMenus[cat]);
+
+            return (
+                <div className="min-h-screen bg-white">
+                    {/* 헤더 */}
+                    <header className="bg-white border-b sticky top-0 z-10">
+                        <div className="max-w-4xl mx-auto px-4 py-4">
+                            {!isEditMode ? (
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-4">
+                                        {/* 로드브로크 로고 */}
+                                        <img 
+                                            src="./logo.jpg" 
+                                            alt="로드브로크 로고" 
+                                            className="h-12 w-auto"
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'block';
+                                            }}
+                                        />
+                                        <div style={{ display: 'none', padding: '8px 16px', background: '#000', color: '#fff', borderRadius: '4px' }}>
+                                            ROADBROOK
+                                        </div>
+                                        <h1 className="text-2xl font-bold text-gray-800">{cafeName}</h1>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowPasswordModal(true)}
+                                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                    >
+                                        <Settings className="w-6 h-6 text-gray-600" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="flex items-center space-x-4 mb-3">
+                                        {/* 로드브로크 로고 */}
+                                        <img 
+                                            src="./logo.jpg" 
+                                            alt="로드브로크 로고" 
+                                            className="h-12 w-auto"
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'block';
+                                            }}
+                                        />
+                                        <div style={{ display: 'none', padding: '8px 16px', background: '#000', color: '#fff', borderRadius: '4px' }}>
+                                            ROADBROOK
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={editingCafeName}
+                                            onChange={(e) => setEditingCafeName(e.target.value)}
+                                            className="text-2xl font-bold text-gray-800 border-b-2 border-gray-800 focus:outline-none flex-1"
+                                        />
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => handleAddItem('COFFEE')}
+                                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                            <span>메뉴 추가</span>
+                                        </button>
+                                        <button
+                                            onClick={handleSaveChanges}
+                                            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2"
+                                        >
+                                            <Save className="w-4 h-4" />
+                                            <span>저장</span>
+                                        </button>
+                                        <button
+                                            onClick={handleCancelEdit}
+                                            className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center space-x-2"
+                                        >
+                                            <X className="w-4 h-4" />
+                                            <span>취소</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                      ) : (
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1">
-                            <div className="flex items-baseline justify-between mb-1">
-                              <h3 className="text-base font-medium text-gray-900">{item.name}</h3>
-                              <span className="text-base font-semibold text-gray-900 ml-4">{item.price}</span>
+                    </header>
+
+                    {/* 메뉴 목록 */}
+                    <main className="max-w-4xl mx-auto px-4 py-8">
+                        {sortedCategories.map((category) => (
+                            <div key={category} className="mb-10">
+                                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-900">
+                                    {category} {groupedMenus[category].length}
+                                </h2>
+                                <div className="space-y-3">
+                                    {groupedMenus[category].map((item) => (
+                                        <div key={item.id} className="bg-white border-b border-gray-200 pb-4 hover:bg-gray-50 transition-colors">
+                                            {isEditMode ? (
+                                                <div className="space-y-3">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1 space-y-2">
+                                                            <div className="flex space-x-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={item.category}
+                                                                    onChange={(e) => handleEditItem(item.id, 'category', e.target.value)}
+                                                                    placeholder="카테고리"
+                                                                    className="px-2 py-1 border rounded w-32 text-sm"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={item.name}
+                                                                    onChange={(e) => handleEditItem(item.id, 'name', e.target.value)}
+                                                                    placeholder="메뉴명"
+                                                                    className="px-2 py-1 border rounded flex-1 font-semibold"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={item.price}
+                                                                    onChange={(e) => handleEditItem(item.id, 'price', e.target.value)}
+                                                                    placeholder="가격"
+                                                                    className="px-2 py-1 border rounded w-24"
+                                                                />
+                                                            </div>
+                                                            <textarea
+                                                                value={item.description}
+                                                                onChange={(e) => handleEditItem(item.id, 'description', e.target.value)}
+                                                                placeholder="메뉴 설명"
+                                                                className="w-full px-2 py-1 border rounded text-sm"
+                                                                rows="2"
+                                                            />
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleDeleteItem(item.id)}
+                                                            className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                        >
+                                                            <Trash2 className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-baseline justify-between mb-1">
+                                                            <h3 className="text-base font-medium text-gray-900">{item.name}</h3>
+                                                            <span className="text-base font-semibold text-gray-900 ml-4">{item.price}</span>
+                                                        </div>
+                                                        <div className="flex items-start space-x-2">
+                                                            <p className="text-gray-600 text-sm flex-1 leading-relaxed">{item.description}</p>
+                                                            <button
+                                                                onClick={() => speakText(item.description)}
+                                                                className="p-1.5 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                                                                title="음성으로 듣기"
+                                                            >
+                                                                <Volume2 className="w-4 h-4 text-gray-600" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    
+                                    {/* 카테고리별 메뉴 추가 버튼 */}
+                                    {isEditMode && (
+                                        <button
+                                            onClick={() => handleAddItem(category)}
+                                            className="w-full py-3 border-2 border-dashed border-green-300 rounded-lg text-green-600 hover:border-green-500 hover:bg-green-50 transition-colors flex items-center justify-center space-x-2 mt-2"
+                                        >
+                                            <Plus className="w-5 h-5" />
+                                            <span>{category} 메뉴 추가</span>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            <div className="flex items-start gap-2">
-                              <p className="text-gray-600 text-sm flex-1 leading-relaxed">{item.description}</p>
-                              <button onClick={()=>speakText(item.description)} className="p-1.5 hover:bg-gray-100 rounded-full" title="음성으로 듣기">
-                                <Volume2 className="w-4 h-4 text-gray-600"/>
-                              </button>
+                        ))}
+                    </main>
+
+                    {/* 비밀번호 모달 */}
+                    {showPasswordModal && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                                <h2 className="text-xl font-bold mb-4 text-gray-800">관리자 인증</h2>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                                    placeholder="비밀번호를 입력하세요"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                                    autoFocus
+                                />
+                                <div className="flex space-x-2">
+                                    <button
+                                        onClick={handlePasswordSubmit}
+                                        className="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                                    >
+                                        확인
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowPasswordModal(false);
+                                            setPassword('');
+                                        }}
+                                        className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                                    >
+                                        취소
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-4">기본 비밀번호: 1234</p>
                             </div>
-                          </div>
-                          <button
-                            onClick={()=>addToCart(item)}
-                            className="btn flex-shrink-0 px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
-                            title="장바구니 담기"
-                          >
-                            담기
-                          </button>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                    )}
 
-                  {/* 카테고리별 메뉴 추가 버튼 (편집모드) */}
-                  {isEditMode && (
-                    <button onClick={()=>handleAddItem(category)} className="w-full py-3 border-2 border-dashed border-green-300 rounded-lg text-green-600 hover:border-green-500 hover:bg-green-50 flex items-center justify-center gap-2 mt-2">
-                      <Plus className="w-5 h-5"/><span>{category} 메뉴 추가</span>
-                    </button>
-                  )}
+                    {/* 푸터 */}
+                    <footer className="max-w-4xl mx-auto px-4 py-8 text-center text-gray-500 text-sm border-t">
+                        <p>QR 코드로 메뉴를 확인하세요</p>
+                        <p className="mt-2 text-xs">Lod brock</p>
+                    </footer>
                 </div>
-              </div>
-            ))}
-          </main>
+            );
+        }
 
-          {/* 장바구니 바 (비편집 모드에만) */}
-          {!isEditMode && (
-            <section className="fixed bottom-0 left-0 right-0 bg-white border-t">
-              <div className="max-w-4xl mx-auto px-4 py-3">
-                {cart.length === 0 ? (
-                  <div className="text-gray-500 text-center">장바구니가 비어 있습니다.</div>
-                ) : (
-                  <>
-                    <div className="max-h-48 overflow-y-auto divide-y">
-                      {cart.map(line=>(
-                        <div key={line.id} className="py-2 flex items-center justify-between text-sm">
-                          <div className="flex-1 pr-2">
-                            <div className="font-medium text-gray-800">{line.name}</div>
-                            <div className="text-gray-500">₩{formatKRW(parsePriceToNumber(line.price))}</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button className="px-2 py-1 rounded bg-gray-100" onClick={()=>changeQty(line.id,-1)}>-</button>
-                            <span className="w-6 text-center">{line.qty}</span>
-                            <button className="px-2 py-1 rounded bg-gray-100" onClick={()=>changeQty(line.id,1)}>+</button>
-                            <button className="px-2 py-1 rounded bg-red-50 text-red-600" onClick={()=>removeLine(line.id)}>삭제</button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-2 flex items-center justify-between">
-                      <div className="text-lg font-bold">합계: ₩{formatKRW(cartTotal)}</div>
-                      <div className="flex gap-2">
-                        <button className="btn px-4 py-2 rounded-lg bg-gray-200 text-gray-800" onClick={clearCart}>비우기</button>
-                        <button className="btn px-5 py-2 rounded-lg bg-black text-white" onClick={placeOrder}>주문하기</button>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* 비밀번호 모달 */}
-          {showPasswordModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-                <h2 className="text-xl font-bold mb-4 text-gray-800">관리자 인증</h2>
-                <input
-                  type="password" value={password}
-                  onChange={(e)=>setPassword(e.target.value)}
-                  onKeyDown={(e)=>e.key==='Enter' && handlePasswordSubmit()}
-                  placeholder="비밀번호를 입력하세요" autoFocus
-                  className="w-full px-4 py-2 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-gray-800"
-                />
-                <div className="flex gap-2">
-                  <button onClick={handlePasswordSubmit} className="flex-1 px-4 py-2 bg-black text-white rounded-lg">확인</button>
-                  <button onClick={()=>{ setShowPasswordModal(false); setPassword(""); }} className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">취소</button>
-                </div>
-                <p className="text-xs text-gray-500 mt-4">기본 비밀번호: 1234</p>
-              </div>
-            </div>
-          )}
-
-          {/* 푸터 */}
-          <footer className="max-w-4xl mx-auto px-4 py-8 text-center text-gray-500 text-sm border-t">
-            <p>QR 코드로 메뉴를 확인하세요</p>
-            <p className="mt-2 text-xs">Lod brock</p>
-          </footer>
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<RoadbrookMenu />);
-  </script>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<RoadbrookMenu />);
+    </script>
 </body>
 </html>
